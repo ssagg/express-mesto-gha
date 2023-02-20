@@ -1,7 +1,7 @@
 {
   "name": "express-mesto-gha",
   "version": "1.0.0",
-  "description": "",
+  "description": "Mesto Back",
   "main": "app.js",
   "scripts": {
     "start": "app.js",
@@ -10,7 +10,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
+  "author": "Alex",
   "license": "ISC",
   "devDependencies": {
     "eslint": "^8.34.0",
