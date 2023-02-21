@@ -1,12 +1,13 @@
 const userSchema = require("../models/user");
-
+const ERROR_CODE = 400;
+const ERROR_CODE_NO_USER = 404;
 module.exports.createUser = (req, res) => {
   console.log(req.body);
   const { name, about, avatar } = req.body;
   userSchema
     .create({ name, about, avatar })
-    .then((user) => res.send({ data: user }))
-    .catch((err) => res.status(500).send({ message: "Error occured" }));
+    .then((user) => res.send({ data: user }, { new: true }))
+    .catch((err) => res.status(ERROR_CODE).send({ message: "Error occured" }));
 };
 
 module.exports.getUser = (req, res) => {
@@ -17,9 +18,14 @@ module.exports.getUserId = (req, res) => {
   console.log(req.params.userId);
   userSchema
     .findById(req.params.userId)
-    .then((user) => res.send({ data: user }))
+    .orFail((err) =>
+      res
+        .status(ERROR_CODE_NO_USER)
+        .send({ message: `User Not found ${err.message}` })
+    )
+    .then((user) => res.send({ data: user }, { new: true }))
     .catch((err) =>
-      res.status(500).send({ message: `Error occured ${err.message}` })
+      res.status(ERROR_CODE).send({ message: `Error occured ${err.message}` })
     );
 };
 
@@ -28,7 +34,7 @@ module.exports.updateUser = (req, res) => {
 
   userSchema
     .findByIdAndUpdate(req.user._id, { name, about })
-    .then((user) => res.send({ data: user }))
+    .then((user) => res.send({ data: user }, { new: true }))
     .catch((err) =>
       res.status(500).send({ message: `Error occured ${err.message}` })
     );
@@ -39,7 +45,7 @@ module.exports.updateAvatar = (req, res) => {
   console.log(req.body);
   userSchema
     .findByIdAndUpdate(req.user._id, { avatar: avatar })
-    .then((avatar) => res.send({ data: avatar }))
+    .then((avatar) => res.send({ data: avatar }, { new: true }))
     .catch((err) =>
       res.status(500).send({ message: `Error occured ${err.message}` })
     );
