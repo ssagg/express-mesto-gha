@@ -29,22 +29,41 @@ module.exports.getUserId = (req, res) => {
     );
 };
 
-module.exports.updateUser = (req, res) => {
-  const { name, about } = req.body;
+// module.exports.updateUser = (req, res) => {
+//   const { name, about } = req.body;
 
-  userSchema
-    .findByIdAndUpdate(req.user._id, { name, about })
-    .then((user) => res.send({ data: user }))
-    .catch((err) =>
-      res.status(ERROR_CODE).send({ message: `Error occured ${err.message}` })
+//   userSchema
+//     .findByIdAndUpdate(req.user._id, { name, about })
+//     .then((user) => res.send({ data: user }))
+//     .catch((err) =>
+//       res.status(ERROR_CODE).send({ message: `Error occured ${err.message}` })
+//     );
+// };
+
+// async
+module.exports.updateUser = async (req, res) => {
+  try {
+    const { name, about } = req.body;
+    const response = await userSchema.findByIdAndUpdate(
+      req.user._id,
+      {
+        name,
+        about,
+      },
+      { new: true, runValidators: true }
     );
+    user = await res.status(200).send(response);
+    return;
+  } catch (e) {
+    console.log(e);
+    res.status(ERROR_CODE).json({ message: `Error occured ${e.message}` });
+  }
 };
 
 module.exports.updateAvatar = (req, res) => {
   const { avatar } = req.body;
-  console.log(req.body);
   userSchema
-    .findByIdAndUpdate(req.user._id, { avatar: avatar })
+    .findByIdAndUpdate(req.user._id, { avatar: avatar }, { new: true })
     .then((avatar) => res.send({ data: avatar }))
     .catch((err) =>
       res.status(ERROR_CODE).send({ message: `Error occured ${err.message}` })
