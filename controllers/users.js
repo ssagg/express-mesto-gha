@@ -6,7 +6,7 @@ module.exports.createUser = (req, res) => {
   const { name, about, avatar } = req.body;
   userSchema
     .create({ name, about, avatar })
-    .then((user) => res.send({ data: user }, { new: true }))
+    .then((user) => res.send({ data: user }))
     .catch((err) => res.status(ERROR_CODE).send({ message: "Error occured" }));
 };
 
@@ -23,7 +23,7 @@ module.exports.getUserId = (req, res) => {
         .status(ERROR_CODE_NO_USER)
         .send({ message: `User Not found ${err.message}` })
     )
-    .then((user) => res.send({ data: user }, { new: true }))
+    .then((user) => res.send({ data: user }))
     .catch((err) =>
       res.status(ERROR_CODE).send({ message: `Error occured ${err.message}` })
     );
@@ -34,9 +34,9 @@ module.exports.updateUser = (req, res) => {
 
   userSchema
     .findByIdAndUpdate(req.user._id, { name, about })
-    .then((user) => res.send({ data: user }, { new: true }))
+    .then((user) => res.send({ data: user }))
     .catch((err) =>
-      res.status(500).send({ message: `Error occured ${err.message}` })
+      res.status(ERROR_CODE).send({ message: `Error occured ${err.message}` })
     );
 };
 
@@ -45,8 +45,8 @@ module.exports.updateAvatar = (req, res) => {
   console.log(req.body);
   userSchema
     .findByIdAndUpdate(req.user._id, { avatar: avatar })
-    .then((avatar) => res.send({ data: avatar }, { new: true }))
+    .then((avatar) => res.send({ data: avatar }))
     .catch((err) =>
-      res.status(500).send({ message: `Error occured ${err.message}` })
+      res.status(ERROR_CODE).send({ message: `Error occured ${err.message}` })
     );
 };

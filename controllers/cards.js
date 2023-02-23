@@ -1,5 +1,6 @@
 const cardSchema = require("../models/card");
-
+const ERROR_CODE = 400;
+const ERROR_CODE_NO_USER = 404;
 module.exports.createCard = (req, res) => {
   console.log(req.body);
   console.log(req.user._id);
@@ -8,7 +9,9 @@ module.exports.createCard = (req, res) => {
     .create({ name, link, owner: req.user._id })
     .then((card) => res.send({ data: card }))
     .catch((err) =>
-      res.status(500).send({ message: `Error on card create ${err.message}` })
+      res
+        .status(ERROR_CODE)
+        .send({ message: `Error on card create ${err.message}` })
     );
 };
 
@@ -17,7 +20,9 @@ module.exports.getCard = (req, res) => {
     .find({})
     .then((cards) => res.send({ data: cards }))
     .catch((err) =>
-      res.status(500).send({ message: `Error on card remove ${err.message}` })
+      res
+        .status(ERROR_CODE)
+        .send({ message: `Error on card remove ${err.message}` })
     );
 };
 
@@ -26,7 +31,9 @@ module.exports.removeCard = (req, res) => {
     .findByIdAndRemove(req.params.cardId)
     .then((card) => res.send({ data: card }))
     .catch((err) =>
-      res.status(500).send({ message: `Error on card remove ${err.message}` })
+      res
+        .status(ERROR_CODE)
+        .send({ message: `Error on card remove ${err.message}` })
     );
 };
 
@@ -40,7 +47,9 @@ module.exports.likeCard = (req, res) => {
       { new: true }
     )
     .catch((err) =>
-      res.status(500).send({ message: `Error on card remove ${err.message}` })
+      res
+        .status(ERROR_CODE)
+        .send({ message: `Error on card remove ${err.message}` })
     );
 };
 
@@ -52,5 +61,7 @@ module.exports.dislikeCard = (req, res) =>
       { new: true }
     )
     .catch((err) =>
-      res.status(500).send({ message: `Error on card remove ${err.message}` })
+      res
+        .status(ERROR_CODE)
+        .send({ message: `Error on card remove ${err.message}` })
     );
