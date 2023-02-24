@@ -29,7 +29,15 @@ module.exports.getCard = (req, res) => {
 module.exports.removeCard = (req, res) => {
   cardSchema
     .findByIdAndRemove(req.params.cardId)
-    .then((card) => res.send({ data: card }))
+    .then((card) => {
+      if (card) {
+        res.status(200).send(card);
+      } else {
+        res
+          .status(ERROR_CODE_NO_USER)
+          .send({ message: `No such card to like ` });
+      }
+    })
     .catch((err) =>
       res
         .status(ERROR_CODE)
@@ -65,7 +73,16 @@ module.exports.dislikeCard = (req, res) =>
       { $pull: { likes: req.user._id } }, // убрать _id из массива
       { new: true }
     )
-    .then((likes) => res.send({ data: likes }))
+    .then((likes) => {
+      if (likes) {
+        res.status(200).send(likes);
+      } else {
+        res
+          .status(ERROR_CODE_NO_USER)
+          .send({ message: `No such card to like ` });
+      }
+      res.send({ data: likes });
+    })
     .catch((err) =>
       res
         .status(ERROR_CODE)
