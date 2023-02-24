@@ -46,7 +46,11 @@ module.exports.likeCard = async (req, res) => {
       { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
       { new: true }
     );
-    const likes = await res.send(response);
+    if (response) {
+      const likes = await res.status(200).send(response);
+    } else {
+      res.status(ERROR_CODE_NO_USER).send({ message: `No such card to like ` });
+    }
   } catch (err) {
     res
       .status(ERROR_CODE)
