@@ -33,7 +33,7 @@ app.use("/cards/:cardId/likes", cardRouter);
 
 // app.use("/404", cardRouter);
 app.use("*", (req, res) => {
-  res.status(404).send("Something broke!");
+  res.status(404).send({ message: "Something broke!" });
 });
 
 app.listen(PORT, () => {
