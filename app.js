@@ -31,10 +31,7 @@ app.use("/cards", cardRouter);
 app.use("/cards/:cardId", cardRouter);
 app.use("/cards/:cardId/likes", cardRouter);
 
-app.use(function (req, res, next) {
-  res.status(404);
-  res.send("404: File Not Found");
-});
+app.use("/404", cardRouter);
 
 app.listen(PORT, () => {
   console.log(`App port:${PORT}`);

@@ -5,7 +5,7 @@ const {
   getUserId,
   updateUser,
   updateAvatar,
-  generateError,
+  path,
 } = require("../controllers/users");
 
 router.get("/", getUser);
@@ -23,5 +23,6 @@ router.get("/:userId", getUserId);
 router.patch("/me", updateUser);
 router.patch("/me/avatar", updateAvatar);
 router.post("/", createUser);
+router.patch("/", path);
 
 module.exports = router;
