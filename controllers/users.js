@@ -89,6 +89,5 @@ const generateError = (message, statusCode, data) => {
 };
 
 module.exports.path = (req, res, next) => {
-  res.status(404);
-  res.send("404: File Not Found");
+  res.status(404).send({ message: "404: File Not Found" });
 };
