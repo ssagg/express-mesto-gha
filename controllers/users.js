@@ -66,7 +66,7 @@ module.exports.updateUser = async (req, res) => {
     user = await res.status(200).send(response);
   } catch (e) {
     console.log(e);
-    res.status(ERROR_CODE).json({ message: `Error occured ${e.message}` });
+    res.status(ERROR_CODE).send({ message: `Error occured ${e.message}` });
   }
 };
 
