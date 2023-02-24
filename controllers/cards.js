@@ -40,6 +40,11 @@ module.exports.removeCard = (req, res) => {
 module.exports.likeCard = (req, res) => {
   console.log(req.params.cardId);
   console.log(req.user._id);
+  if (req.params.userId != user._id) {
+    res
+      .status(ERROR_CODE_NO_USER)
+      .send({ message: `Error occured test ${e.message}` });
+  }
   cardSchema
     .findByIdAndUpdate(
       req.params.cardId,
