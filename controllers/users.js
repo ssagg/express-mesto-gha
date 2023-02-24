@@ -30,12 +30,11 @@ module.exports.getUser = (req, res) => {
 module.exports.getUserId = async (req, res) => {
   try {
     const response = await userSchema.findById(req.params.userId);
-    if (req.params.userId != user._id) {
-      res
-        .status(ERROR_CODE_NO_USER)
-        .send({ message: `Error occured test ${e.message}` });
+    if (response) {
+      user = await res.status(200).send(response);
+    } else {
+      res.status(ERROR_CODE_NO_USER).send({ message: `No such user ` });
     }
-    user = await res.status(200).send(response);
   } catch (e) {
     res.status(ERROR_CODE).send({ message: `Error occured ${e.message}` });
   }

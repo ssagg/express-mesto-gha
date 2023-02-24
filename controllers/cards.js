@@ -11,7 +11,7 @@ module.exports.createCard = (req, res) => {
     .catch((err) =>
       res
         .status(ERROR_CODE)
-        .send({ message: `Error on card create ${err.message}` })
+        .send({ message: `Error on card create ${err.message} ${err.name}` })
     );
 };
 
@@ -33,30 +33,25 @@ module.exports.removeCard = (req, res) => {
     .catch((err) =>
       res
         .status(ERROR_CODE)
-        .send({ message: `Error on card remove ${err.message}` })
+        .send({ message: `Error on card remove ${err.message} ${err.name}` })
     );
 };
 
-module.exports.likeCard = (req, res) => {
+module.exports.likeCard = async (req, res) => {
   console.log(req.params.cardId);
   console.log(req.user._id);
-  if (req.params.userId != user._id) {
-    res
-      .status(ERROR_CODE_NO_USER)
-      .send({ message: `Error occured test ${e.message}` });
-  }
-  cardSchema
-    .findByIdAndUpdate(
+  try {
+    const response = await cardSchema.findByIdAndUpdate(
       req.params.cardId,
       { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
       { new: true }
-    )
-    .then((likes) => res.send({ data: likes }))
-    .catch((err) =>
-      res
-        .status(ERROR_CODE)
-        .send({ message: `Error on card remove ${err.message}` })
     );
+    const likes = await res.send(response);
+  } catch (err) {
+    res
+      .status(ERROR_CODE)
+      .send({ message: `Error on card remove ${err.message} ${err.name}` });
+  }
 };
 
 module.exports.dislikeCard = (req, res) =>
