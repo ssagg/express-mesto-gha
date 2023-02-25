@@ -14,13 +14,13 @@ mongoose.connect("mongodb://localhost:27017/mestodb", {
   useNewUrlParser: true,
 });
 
-const usermdlw = (req, res, next) => {
+const tempUser = (req, res, next) => {
   req.user = {
     _id: "63f1ea7dc5015ff0f32d19a1",
   };
   next();
 };
-app.use(usermdlw);
+app.use(tempUser);
 
 app.use("/users", usersRouter);
 app.use("/users/me", usersRouter);
@@ -31,9 +31,8 @@ app.use("/cards", cardRouter);
 app.use("/cards/:cardId", cardRouter);
 app.use("/cards/:cardId/likes", cardRouter);
 
-// app.use("/404", cardRouter);
 app.use("*", (req, res) => {
-  res.status(404).send({ message: "Something broke!" });
+  res.status(404).send({ message: "Несуществующий адрес" });
 });
 
 app.listen(PORT, () => {
