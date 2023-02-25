@@ -17,7 +17,7 @@ module.exports.createUser = async (req, res) => {
 module.exports.getUsers = async (req, res) => {
   try {
     const response = await userSchema.find({});
-    const users = await res.statsu(200).send(response);
+    const users = await res.status(200).send(response);
   } catch (e) {
     res
       .status(ERROR_CODE_INCORRECT_REQ)
