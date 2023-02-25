@@ -1,7 +1,7 @@
 {
   "extends": "airbnb-base",
-  "allow": ["_id"],
-  "allowInArrayDestructuring": true,
-  "allowInObjectDestructuring": true,
-  "allowFunctionParams": true
+  "rules": {
+    "no-underscore-dangle": ["error", { "allow": ["_id"]}]
+   }
+
 }
