@@ -1,21 +1,33 @@
 const cardSchema = require('../models/card');
-
-const ERROR_CODE_INCORRECT_REQ = 400;
-const ERROR_CODE_NO_CARD = 404;
+const { ERROR_CODE_INCORRECT_REQ, ERROR_CODE_NO_CARD, ERROR_CODE_DEFAULT } = require('../constants/errors');
 
 module.exports.createCard = (req, res) => {
   const { name, link } = req.body;
   cardSchema
     .create({ name, link, owner: req.user._id })
     .then((card) => res.send(card))
-    .catch(() => res.status(ERROR_CODE_INCORRECT_REQ).send({ message: 'Ошибка при создании карточки' }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(ERROR_CODE_INCORRECT_REQ).send({
+          message: 'Переданы некорректные данные при создании карточки.',
+        });
+      } else {
+        res.status(ERROR_CODE_DEFAULT).send({
+          message: 'Ошибка при создании карточки',
+        });
+      }
+    });
 };
 
 module.exports.getCards = (req, res) => {
   cardSchema
     .find({})
     .then((cards) => res.send(cards))
-    .catch(() => res.status(ERROR_CODE_INCORRECT_REQ).send({ message: 'Ошибка при получении карточек' }));
+    .catch(() => {
+      res.status(ERROR_CODE_DEFAULT).send({
+        message: 'Ошибка при получении карточек',
+      });
+    });
 };
 
 module.exports.removeCard = (req, res) => {
@@ -30,9 +42,17 @@ module.exports.removeCard = (req, res) => {
           .send({ message: 'Такой карточки не существует' });
       }
     })
-    .catch(() => res.status(ERROR_CODE_INCORRECT_REQ).send({
-      message: 'Ошибка при удалении карточки',
-    }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(ERROR_CODE_INCORRECT_REQ).send({
+          message: 'Ошибка при удалении карточки. Некорректный id карточки',
+        });
+      } else {
+        res.status(ERROR_CODE_DEFAULT).send({
+          message: 'Ошибка при удалении карточки',
+        });
+      }
+    });
 };
 
 module.exports.likeCard = async (req, res) => {
@@ -51,13 +71,16 @@ module.exports.likeCard = async (req, res) => {
         });
       }
     })
-
-    .catch(() => {
-      res
-        .status(ERROR_CODE_INCORRECT_REQ)
-        .send({
-          message: 'Ошибка добавления лайка ',
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(ERROR_CODE_INCORRECT_REQ).send({
+          message: 'Переданы некорректные данные для постановки лайка',
         });
+      } else {
+        res.status(ERROR_CODE_DEFAULT).send({
+          message: 'Ошибка при лайке карточки',
+        });
+      }
     });
 };
 
@@ -76,4 +99,14 @@ module.exports.dislikeCard = (req, res) => cardSchema
       });
     }
   })
-  .catch(() => res.status(ERROR_CODE_INCORRECT_REQ).send({ message: 'Ошибка при удалении лайка' }));
+  .catch((err) => {
+    if (err.name === 'CastError') {
+      res.status(ERROR_CODE_INCORRECT_REQ).send({
+        message: 'Ошибка при удалении лайка. Переданы некорректные данные.',
+      });
+    } else {
+      res.status(ERROR_CODE_DEFAULT).send({
+        message: 'Ошибка при снятии лайка карточки',
+      });
+    }
+  });
