@@ -22,10 +22,11 @@ module.exports.createCard = (req, res) => {
 module.exports.getCards = (req, res) => {
   cardSchema
     .find({})
+    .populate('owner')
     .then((cards) => res.send(cards))
-    .catch(() => {
+    .catch((err) => {
       res.status(ERROR_CODE_DEFAULT).send({
-        message: 'Ошибка при получении карточек',
+        message: `Ошибка при получении карточек ${err.message}`,
       });
     });
 };
@@ -61,7 +62,7 @@ module.exports.likeCard = async (req, res) => {
       req.params.cardId,
       { $addToSet: { likes: req.user._id } },
       { new: true },
-    )
+    ).populate(['owner', 'likes'])
     .then((likes) => {
       if (likes) {
         res.send(likes);
