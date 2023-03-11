@@ -30,12 +30,11 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
   autoIndex: true,
 });
 
-// app.use(auth);
 app.post('/signin', login);
 app.post('/signup', createUser);
 
-app.use('/users', usersRouter);
-app.use('/cards', cardRouter);
+app.use('/users', auth, usersRouter);
+app.use('/cards', auth, cardRouter);
 
 app.use('*', (req, res) => {
   res.status(404).send({ message: 'Несуществующий адрес' });

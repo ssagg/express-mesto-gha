@@ -1,10 +1,9 @@
 const bcrypt = require('bcryptjs');
-const jsonwebtoken = require('jsonwebtoken')
+const jsonwebtoken = require('jsonwebtoken');
 const userSchema = require('../models/user');
 
 const { ERROR_CODE_INCORRECT_REQ, ERROR_CODE_NO_USER, ERROR_CODE_DEFAULT } = require('../constants/errors');
 
-// signup
 module.exports.createUser = async (req, res) => {
   try {
     const {
@@ -27,17 +26,17 @@ module.exports.createUser = async (req, res) => {
     }
   }
 };
-// signin
+
 module.exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = await userSchema.findOne({ email });
+    const user = await userSchema.findOne({ email }).select('+password');
     const uncrypt = await bcrypt.compare(password, user.password);
     if (uncrypt) {
       const jwt = jsonwebtoken.sign({ _id: user._id }, 'secret_word', { expiresIn: '7d' });
-      return res.send({ jwt });
+      res.send({ jwt });
     }
-    return res.status(401).send({
+    res.status(401).send({
       message: 'Польователь не найден',
     });
   } catch (err) {
@@ -47,23 +46,26 @@ module.exports.login = async (req, res) => {
       });
     } else {
       res.status(ERROR_CODE_DEFAULT).send({
-        message: 'Ошибка при создании пользователя',
+        message: 'Ошибка при логине',
       });
     }
   }
 };
-// GET users/me
 
 module.exports.getCurrentUser = async (req, res) => {
-  res.status(200).send({ message: 'get user' });
-  // try {
-  //   const response = await userSchema.find({});
-  //   res.send(response);
-  // } catch (e) {
-  //   res
-  //     .status(ERROR_CODE_DEFAULT)
-  //     .send({ message: 'Ошибка получения пользователей' });
-  // }
+  const { authorization } = req.headers;
+  if (!authorization || !authorization.startsWith('Bearer')) {
+    res.status(401).send({ message: 'Необходима авторизация' });
+  }
+  let payload;
+  const jwt = authorization.replace('Bearer ', '');
+  try {
+    payload = jsonwebtoken.verify(jwt, 'secret_word');
+    const response = await userSchema.findById(payload._id);
+    res.status(200).send(response);
+  } catch (err) {
+    res.status(401).send({ message: 'Необходима авторизация' });
+  }
 };
 
 module.exports.getUsers = async (req, res) => {
