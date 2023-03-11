@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const { celebrate, Joi, errors } = require('celebrate');
 const bodyParser = require('body-parser');
 const auth = require('./middlewares/auth');
 const usersRouter = require('./routes/users');
@@ -31,11 +32,19 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 });
 
 app.post('/signin', login);
-app.post('/signup', createUser);
+app.post('/signup', celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().required().min(2).max(30).default('Жак-Ив Кусто'),
+    about: Joi.string().required().min(2).max(30).default('Исследователь'),
+    avatar: Joi.string().required().default('https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png'),
+    email: Joi.string().required().min(2).max(30).unique(),
+    password: Joi.string().required().min(2),
+  }),
+}), createUser);
 
 app.use('/users', auth, usersRouter);
 app.use('/cards', auth, cardRouter);
-
+app.use(errors());
 app.use('*', (req, res) => {
   res.status(404).send({ message: 'Несуществующий адрес' });
 });
