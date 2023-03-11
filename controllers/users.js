@@ -1,10 +1,19 @@
+const bcrypt = require('bcryptjs');
+const jsonwebtoken = require('jsonwebtoken')
 const userSchema = require('../models/user');
+
 const { ERROR_CODE_INCORRECT_REQ, ERROR_CODE_NO_USER, ERROR_CODE_DEFAULT } = require('../constants/errors');
 
+// signup
 module.exports.createUser = async (req, res) => {
   try {
-    const { name, about, avatar } = req.body;
-    const response = await userSchema.create({ name, about, avatar });
+    const {
+      name, about, avatar, email, password,
+    } = req.body;
+    const hash = await bcrypt.hash(password, 10);
+    const response = await userSchema.create({
+      name, about, avatar, email, password: hash,
+    });
     res.send(response);
   } catch (err) {
     if (err.name === 'ValidationError') {
@@ -17,6 +26,44 @@ module.exports.createUser = async (req, res) => {
       });
     }
   }
+};
+// signin
+module.exports.login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await userSchema.findOne({ email });
+    const uncrypt = await bcrypt.compare(password, user.password);
+    if (uncrypt) {
+      const jwt = jsonwebtoken.sign({ _id: user._id }, 'secret_word', { expiresIn: '7d' });
+      return res.send({ jwt });
+    }
+    return res.status(401).send({
+      message: 'Польователь не найден',
+    });
+  } catch (err) {
+    if (err.name === 'ValidationError') {
+      res.status(ERROR_CODE_INCORRECT_REQ).send({
+        message: 'Переданы некорректные данные при создании пользователя.',
+      });
+    } else {
+      res.status(ERROR_CODE_DEFAULT).send({
+        message: 'Ошибка при создании пользователя',
+      });
+    }
+  }
+};
+// GET users/me
+
+module.exports.getCurrentUser = async (req, res) => {
+  res.status(200).send({ message: 'get user' });
+  // try {
+  //   const response = await userSchema.find({});
+  //   res.send(response);
+  // } catch (e) {
+  //   res
+  //     .status(ERROR_CODE_DEFAULT)
+  //     .send({ message: 'Ошибка получения пользователей' });
+  // }
 };
 
 module.exports.getUsers = async (req, res) => {
