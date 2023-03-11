@@ -2,7 +2,9 @@ const bcrypt = require('bcryptjs');
 const jsonwebtoken = require('jsonwebtoken');
 const userSchema = require('../models/user');
 
-const { ERROR_CODE_INCORRECT_REQ, ERROR_CODE_NO_USER, ERROR_CODE_DEFAULT } = require('../constants/errors');
+const {
+  ERROR_CODE_INCORRECT_REQ, ERROR_CODE_NO_USER, ERROR_CODE_DEFAULT, ERROR_CODE_USER_EXIST,
+} = require('../constants/errors');
 
 module.exports.createUser = async (req, res) => {
   try {
@@ -18,6 +20,10 @@ module.exports.createUser = async (req, res) => {
     if (err.name === 'ValidationError') {
       res.status(ERROR_CODE_INCORRECT_REQ).send({
         message: 'Переданы некорректные данные при создании пользователя.',
+      });
+    } else if (err.code === 11000) {
+      res.status(ERROR_CODE_USER_EXIST).send({
+        message: 'Такой польщователь уже зарегистрирован.',
       });
     } else {
       res.status(ERROR_CODE_DEFAULT).send({

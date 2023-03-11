@@ -39,12 +39,21 @@ app.post('/signup', celebrate({
     about: Joi.string().required().min(2).max(30)
       .default('Исследователь'),
     avatar: Joi.string().required().default('https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png'),
-    email: Joi.string().required().min(2).max(30),
+    email: Joi.string().email().required().min(2)
+      .max(30),
     password: Joi.string().required().min(2),
   }),
 }), createUser);
 
-app.use('/users', auth, usersRouter);
+app.use('/users', celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().min(2).max(30)
+      .default('Жак-Ив Кусто'),
+    about: Joi.string().min(2).max(30)
+      .default('Исследователь'),
+    avatar: Joi.string().pattern(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/, 'link').default('https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png'),
+  }),
+}), auth, usersRouter);
 app.use('/cards', auth, cardRouter);
 app.use(errors());
 app.use('*', (req, res) => {
