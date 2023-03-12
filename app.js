@@ -31,7 +31,13 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
   autoIndex: true,
 });
 
-app.post('/signin', login);
+app.post('/signin', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().email().required().min(2)
+      .max(30),
+    password: Joi.string().required().min(2),
+  }),
+}), login);
 app.post('/signup', celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30)
@@ -56,8 +62,8 @@ app.use('/users', celebrate({
 }), auth, usersRouter);
 app.use('/cards', celebrate({
   body: Joi.object().keys({
-    name: Joi.string().min(2).max(30),
-    link: Joi.string().pattern(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/, 'link'),
+    name: Joi.string().required().min(2).max(30),
+    link: Joi.string().required().pattern(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/, 'link'),
     owner: Joi.string(),
   }),
 }), auth, cardRouter);
