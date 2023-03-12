@@ -6,7 +6,7 @@ const {
   ERROR_CODE_INCORRECT_REQ, ERROR_CODE_NO_USER, ERROR_CODE_DEFAULT, ERROR_CODE_USER_EXIST,
 } = require('../constants/errors');
 
-module.exports.createUser = async (req, res) => {
+module.exports.createUser = async (req, res, next) => {
   try {
     const {
       name, about, avatar, email, password,
@@ -19,23 +19,24 @@ module.exports.createUser = async (req, res) => {
       name, about, avatar, email,
     });
   } catch (err) {
-    if (err.name === 'ValidationError') {
-      res.status(ERROR_CODE_INCORRECT_REQ).send({
-        message: 'Переданы некорректные данные при создании пользователя.',
-      });
-    } else if (err.code === 11000) {
-      res.status(ERROR_CODE_USER_EXIST).send({
-        message: 'Такой польщователь уже зарегистрирован.',
-      });
-    } else {
-      res.status(ERROR_CODE_DEFAULT).send({
-        message: 'Ошибка при создании пользователя',
-      });
-    }
+    next(err);
+    // if (err.name === 'ValidationError') {
+    //   res.status(ERROR_CODE_INCORRECT_REQ).send({
+    //     message: 'Переданы некорректные данные при создании пользователя.',
+    //   });
+    // } else if (err.code === 11000) {
+    //   res.status(ERROR_CODE_USER_EXIST).send({
+    //     message: 'Такой польщователь уже зарегистрирован.',
+    //   });
+    // } else {
+    //   res.status(ERROR_CODE_DEFAULT).send({
+    //     message: 'Ошибка при создании пользователя',
+    //   });
+    // }
   }
 };
 
-module.exports.login = async (req, res) => {
+module.exports.login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
     const user = await userSchema.findOne({ email }).select('+password');
@@ -43,20 +44,20 @@ module.exports.login = async (req, res) => {
     if (uncrypt) {
       const jwt = jsonwebtoken.sign({ _id: user._id }, 'secret_word', { expiresIn: '7d' });
       res.send({ jwt });
-    }
-    res.status(401).send({
-      message: 'Пользователь не найден',
-    });
-  } catch (err) {
-    if (err.name === 'ValidationError') {
-      res.status(ERROR_CODE_INCORRECT_REQ).send({
-        message: 'Переданы некорректные данные при создании пользователя.',
-      });
     } else {
-      res.status(ERROR_CODE_DEFAULT).send({
-        message: 'Ошибка при логине',
-      });
+      res.status(401).send({ message: 'Пользователь не найден' });
     }
+  } catch (err) {
+    next(err);
+    // if (err.name === 'ValidationError') {
+    //   res.status(ERROR_CODE_INCORRECT_REQ).send({
+    //     message: 'Переданы некорректные данные при создании пользователя.',
+    //   });
+    // } else {
+    //   res.status(ERROR_CODE_DEFAULT).send({
+    //     message: 'Ошибка при логине',
+    //   });
+    // }
   }
 };
 
@@ -70,7 +71,7 @@ module.exports.getCurrentUser = async (req, res) => {
   try {
     payload = jsonwebtoken.verify(jwt, 'secret_word');
     const response = await userSchema.findById(payload._id);
-    res.status(200).send(response);
+    res.send(response);
   } catch (err) {
     res.status(401).send({ message: 'Необходима авторизация' });
   }
@@ -87,7 +88,7 @@ module.exports.getUsers = async (req, res) => {
   }
 };
 
-module.exports.getUserById = async (req, res) => {
+module.exports.getUserById = async (req, res, next) => {
   try {
     const response = await userSchema.findById(req.params.userId);
     if (response) {
@@ -98,15 +99,16 @@ module.exports.getUserById = async (req, res) => {
         .send({ message: 'Запрашиваемый пользователь не найден' });
     }
   } catch (err) {
-    if (err.name === 'CastError') {
-      res.status(ERROR_CODE_INCORRECT_REQ).send({
-        message: 'Ошибка при поиске пользователя. Некорректный id пользователя',
-      });
-    } else {
-      res.status(ERROR_CODE_DEFAULT).send({
-        message: 'Ошибка при получении пользователя.',
-      });
-    }
+    next(err);
+    // if (err.name === 'CastError') {
+    //   res.status(ERROR_CODE_INCORRECT_REQ).send({
+    //     message: 'Ошибка при поиске пользователя. Некорректный id пользователя',
+    //   });
+    // } else {
+    //   res.status(ERROR_CODE_DEFAULT).send({
+    //     message: 'Ошибка при получении пользователя.',
+    //   });
+    // }
   }
 };
 

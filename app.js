@@ -5,6 +5,7 @@ const rateLimit = require('express-rate-limit');
 const { celebrate, Joi, errors } = require('celebrate');
 const bodyParser = require('body-parser');
 const auth = require('./middlewares/auth');
+const error = require('./middlewares/error');
 const usersRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
 const {
@@ -71,6 +72,7 @@ app.use(errors());
 app.use('*', (req, res) => {
   res.status(404).send({ message: 'Несуществующий адрес' });
 });
+app.use(error);
 
 app.listen(PORT, () => {
   console.log(`App port:${PORT}`);
