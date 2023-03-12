@@ -12,10 +12,10 @@ module.exports.createUser = async (req, res) => {
       name, about, avatar, email, password,
     } = req.body;
     const hash = await bcrypt.hash(password, 10);
-    const response = await userSchema.create({
+    const user = await userSchema.create({
       name, about, avatar, email, password: hash,
     });
-    res.send(response);
+    res.send({ name, about, avatar, email });
   } catch (err) {
     if (err.name === 'ValidationError') {
       res.status(ERROR_CODE_INCORRECT_REQ).send({
@@ -38,12 +38,14 @@ module.exports.login = async (req, res) => {
     const { email, password } = req.body;
     const user = await userSchema.findOne({ email }).select('+password');
     const uncrypt = await bcrypt.compare(password, user.password);
+    console.log(uncrypt)
     if (uncrypt) {
       const jwt = jsonwebtoken.sign({ _id: user._id }, 'secret_word', { expiresIn: '7d' });
       res.send({ jwt });
     }
+
     res.status(401).send({
-      message: 'Польователь не найден',
+      message: 'Пользователь не найден',
     });
   } catch (err) {
     if (err.name === 'ValidationError') {
