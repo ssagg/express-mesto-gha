@@ -45,7 +45,7 @@ app.post('/signup', celebrate({
       .default('Жак-Ив Кусто'),
     about: Joi.string().min(2).max(30)
       .default('Исследователь'),
-    avatar: Joi.string().default('https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png'),
+    avatar: Joi.string().pattern(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/, 'link').default('https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png'),
     email: Joi.string().email().required().min(2)
       .max(30),
     password: Joi.string().required().min(2),
@@ -61,13 +61,7 @@ app.use('/users', celebrate({
     avatar: Joi.string().pattern(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/, 'link').default('https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png'),
   }),
 }), auth, usersRouter);
-app.use('/cards', celebrate({
-  body: Joi.object().keys({
-    name: Joi.string().required().min(2).max(30),
-    link: Joi.string().required().pattern(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/, 'link'),
-    owner: Joi.string(),
-  }),
-}), auth, cardRouter);
+app.use('/cards', auth, cardRouter);
 app.use(errors());
 app.use('*', (req, res) => {
   res.status(404).send({ message: 'Несуществующий адрес' });
@@ -77,3 +71,11 @@ app.use(error);
 app.listen(PORT, () => {
   console.log(`App port:${PORT}`);
 });
+
+// celebrate({
+//   body: Joi.object().keys({
+//     name: Joi.string().required().min(2).max(30),
+//     link: Joi.string().required().pattern(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/, 'link'),
+//     owner: Joi.string(),
+//   }),
+// }),
