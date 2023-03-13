@@ -1,62 +1,66 @@
 const cardSchema = require('../models/card');
 const { ERROR_CODE_INCORRECT_REQ, ERROR_CODE_NO_CARD, ERROR_CODE_DEFAULT } = require('../constants/errors');
 
-module.exports.createCard = (req, res) => {
+module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
   cardSchema
     .create({ name, link, owner: req.user._id })
     .then((card) => res.send(card))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(ERROR_CODE_INCORRECT_REQ).send({
-          message: 'Переданы некорректные данные при создании карточки.',
-        });
-      } else {
-        res.status(ERROR_CODE_DEFAULT).send({
-          message: 'Ошибка при создании карточки',
-        });
-      }
+      next(err);
+      // if (err.name === 'ValidationError') {
+      //   res.status(ERROR_CODE_INCORRECT_REQ).send({
+      //     message: 'Переданы некорректные данные при создании карточки.',
+      //   });
+      // } else {
+      //   res.status(ERROR_CODE_DEFAULT).send({
+      //     message: 'Ошибка при создании карточки',
+      //   });
+      // }
     });
 };
 
-module.exports.getCards = (req, res) => {
+module.exports.getCards = (req, res, next) => {
   cardSchema
     .find({})
     .populate('owner')
     .then((cards) => res.send(cards))
     .catch((err) => {
-      res.status(ERROR_CODE_DEFAULT).send({
-        message: `Ошибка при получении карточек ${err.message}`,
-      });
+      next(err);
+      // res.status(ERROR_CODE_DEFAULT).send({
+      //   message: 'Ошибка при получении карточек',
+      // });
     });
 };
 
-module.exports.removeCard = (req, res) => {
+module.exports.removeCard = (req, res, next) => {
+  console.log(req.params.cardId)
   cardSchema
     .findByIdAndRemove(req.params.cardId)
     .then((card) => {
       if (card) {
-        res.send(card);
+        return res.send(card);
       } else {
-        res
+         return res
           .status(ERROR_CODE_NO_CARD)
           .send({ message: 'Такой карточки не существует' });
       }
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(ERROR_CODE_INCORRECT_REQ).send({
-          message: 'Ошибка при удалении карточки. Некорректный id карточки',
-        });
-      } else {
-        res.status(ERROR_CODE_DEFAULT).send({
-          message: 'Ошибка при удалении карточки',
-        });
-      }
+      next(err);
+      // if (err.name === 'CastError') {
+      //   res.status(ERROR_CODE_INCORRECT_REQ).send({
+      //     message: 'Ошибка при удалении карточки. Некорректный id карточки',
+      //   });
+      // } else {
+      //   res.status(ERROR_CODE_DEFAULT).send({
+      //     message: 'Ошибка при удалении карточки',
+      //   });
+      // }
     });
 };
 
-module.exports.likeCard = async (req, res) => {
+module.exports.likeCard = async (req, res, next) => {
   cardSchema
     .findByIdAndUpdate(
       req.params.cardId,
@@ -73,19 +77,20 @@ module.exports.likeCard = async (req, res) => {
       }
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(ERROR_CODE_INCORRECT_REQ).send({
-          message: 'Переданы некорректные данные для постановки лайка',
-        });
-      } else {
-        res.status(ERROR_CODE_DEFAULT).send({
-          message: 'Ошибка при лайке карточки',
-        });
-      }
+      next(err);
+      // if (err.name === 'CastError') {
+      //   res.status(ERROR_CODE_INCORRECT_REQ).send({
+      //     message: 'Переданы некорректные данные для постановки лайка',
+      //   });
+      // } else {
+      //   res.status(ERROR_CODE_DEFAULT).send({
+      //     message: 'Ошибка при лайке карточки',
+      //   });
+      // }
     });
 };
 
-module.exports.dislikeCard = (req, res) => cardSchema
+module.exports.dislikeCard = (req, res, next) => cardSchema
   .findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } },
@@ -101,13 +106,14 @@ module.exports.dislikeCard = (req, res) => cardSchema
     }
   })
   .catch((err) => {
-    if (err.name === 'CastError') {
-      res.status(ERROR_CODE_INCORRECT_REQ).send({
-        message: 'Ошибка при удалении лайка. Переданы некорректные данные.',
-      });
-    } else {
-      res.status(ERROR_CODE_DEFAULT).send({
-        message: 'Ошибка при снятии лайка карточки',
-      });
-    }
+    next(err);
+    // if (err.name === 'CastError') {
+    //   res.status(ERROR_CODE_INCORRECT_REQ).send({
+    //     message: 'Ошибка при удалении лайка. Переданы некорректные данные.',
+    //   });
+    // } else {
+    //   res.status(ERROR_CODE_DEFAULT).send({
+    //     message: 'Ошибка при снятии лайка карточки',
+    //   });
+    // }
   });

@@ -1,9 +1,9 @@
 const {
   ERROR_CODE_INCORRECT_REQ, ERROR_CODE_NO_USER, ERROR_CODE_DEFAULT, ERROR_CODE_USER_EXIST,
-  ERROR_CODE_NO_CARD
+  ERROR_CODE_NO_CARD,
 } = require('../constants/errors');
 
-const errHandler = (err, req, res, next) => {
+const userErrorsHandler = (err, req, res, next) => {
   // console.log(err);
 
   // const statusCode = err.statusCode || 500;
@@ -37,8 +37,31 @@ const errHandler = (err, req, res, next) => {
       message: 'Ошибка при получении пользователя.',
     });
   }
+  if (err.name === 'CastError') {
+    res.status(ERROR_CODE_INCORRECT_REQ).send({
+      message: 'Ошибка при удалении карточки. Некорректный id карточки',
+    });
+  }
 
   next();
 };
+module.exports = userErrorsHandler;
 
-module.exports = errHandler;
+// module.exports.cardErrorHandler = (err, req, res, next) => {
+//   if (err.name === 'ValidationError') {
+//     res.status(ERROR_CODE_INCORRECT_REQ).send({
+//       message: 'Переданы некорректные данные при создании карточки.',
+//     });
+//   } else {
+//     res.status(ERROR_CODE_DEFAULT).send({
+//       message: 'Ошибка при создании карточки',
+//     });
+//   }
+//   if (err.name === 'CastError') {
+//     res.status(ERROR_CODE_INCORRECT_REQ).send({
+//       message: 'Ошибка при удалении карточки. Некорректный id карточки',
+//     });
+//   }
+
+//   next();
+// };

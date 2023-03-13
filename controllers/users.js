@@ -43,7 +43,7 @@ module.exports.login = async (req, res, next) => {
     const uncrypt = await bcrypt.compare(password, user.password);
     if (uncrypt) {
       const jwt = jsonwebtoken.sign({ _id: user._id }, 'secret_word', { expiresIn: '7d' });
-      res.send({ jwt });
+      return res.send({ jwt });
     } else {
       res.status(401).send({ message: 'Пользователь не найден' });
     }
@@ -61,7 +61,7 @@ module.exports.login = async (req, res, next) => {
   }
 };
 
-module.exports.getCurrentUser = async (req, res) => {
+module.exports.getCurrentUser = async (req, res, next) => {
   const { authorization } = req.headers;
   if (!authorization || !authorization.startsWith('Bearer')) {
     res.status(401).send({ message: 'Необходима авторизация' });
@@ -73,18 +73,20 @@ module.exports.getCurrentUser = async (req, res) => {
     const response = await userSchema.findById(payload._id);
     res.send(response);
   } catch (err) {
-    res.status(401).send({ message: 'Необходима авторизация' });
+    next(err);
+    // res.status(401).send({ message: 'Необходима авторизация' });
   }
 };
 
-module.exports.getUsers = async (req, res) => {
+module.exports.getUsers = async (req, res, next) => {
   try {
     const response = await userSchema.find({});
     res.send(response);
-  } catch (e) {
-    res
-      .status(ERROR_CODE_DEFAULT)
-      .send({ message: 'Ошибка получения пользователей' });
+  } catch (err) {
+    next(err);
+    // res
+    //   .status(ERROR_CODE_DEFAULT)
+    //   .send({ message: 'Ошибка получения пользователей' });
   }
 };
 
@@ -112,7 +114,7 @@ module.exports.getUserById = async (req, res, next) => {
   }
 };
 
-module.exports.updateUser = async (req, res) => {
+module.exports.updateUser = async (req, res, next) => {
   try {
     const { name, about } = req.body;
     const response = await userSchema.findByIdAndUpdate(
@@ -125,19 +127,20 @@ module.exports.updateUser = async (req, res) => {
     );
     res.send(response);
   } catch (err) {
-    if (err.name === 'ValidationError') {
-      res.status(ERROR_CODE_INCORRECT_REQ).send({
-        message: 'Ошибка обновления данных пользователя.Переданы некорректные данные.',
-      });
-    } else {
-      res.status(ERROR_CODE_DEFAULT).send({
-        message: 'Ошибка обновления пользователя',
-      });
-    }
+    next(err);
+    // if (err.name === 'ValidationError') {
+    //   res.status(ERROR_CODE_INCORRECT_REQ).send({
+    //     message: 'Ошибка обновления данных пользователя.Переданы некорректные данные.',
+    //   });
+    // } else {
+    //   res.status(ERROR_CODE_DEFAULT).send({
+    //     message: 'Ошибка обновления пользователя',
+    //   });
+    // }
   }
 };
 
-module.exports.updateAvatar = async (req, res) => {
+module.exports.updateAvatar = async (req, res, next) => {
   try {
     const { avatar } = req.body;
     const response = await userSchema.findByIdAndUpdate(
@@ -147,14 +150,15 @@ module.exports.updateAvatar = async (req, res) => {
     );
     res.send(response);
   } catch (err) {
-    if (err.name === 'ValidationError') {
-      res.status(ERROR_CODE_INCORRECT_REQ).send({
-        message: 'Ошибка обновления аватара. Переданы некорректные данные.',
-      });
-    } else {
-      res.status(ERROR_CODE_DEFAULT).send({
-        message: 'Ошибка обновления аватара',
-      });
-    }
+    next(err);
+    // if (err.name === 'ValidationError') {
+    //   res.status(ERROR_CODE_INCORRECT_REQ).send({
+    //     message: 'Ошибка обновления аватара. Переданы некорректные данные.',
+    //   });
+    // } else {
+    //   res.status(ERROR_CODE_DEFAULT).send({
+    //     message: 'Ошибка обновления аватара',
+    //   });
+    // }
   }
 };

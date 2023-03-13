@@ -62,20 +62,13 @@ app.use('/users', celebrate({
   }),
 }), auth, usersRouter);
 app.use('/cards', auth, cardRouter);
-app.use(errors());
+// app.use(errors());
 app.use('*', (req, res) => {
   res.status(404).send({ message: 'Несуществующий адрес' });
 });
+app.use(errors());
 app.use(error);
 
 app.listen(PORT, () => {
   console.log(`App port:${PORT}`);
 });
-
-// celebrate({
-//   body: Joi.object().keys({
-//     name: Joi.string().required().min(2).max(30),
-//     link: Joi.string().required().pattern(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/, 'link'),
-//     owner: Joi.string(),
-//   }),
-// }),
