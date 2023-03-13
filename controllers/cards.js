@@ -66,11 +66,11 @@ module.exports.removeCard = (req, res, next) => {
     .then((card) => {
       console.log(`card ow - ${card.owner._id}`);
       console.log(`user id - ${req.user._id}`);
-      if (!card && card.owner._id !== req.user._id) {
+      if (card && card.owner._id === req.user._id) {
         return res.send('success');
       }
         // else {
-          throw new NoSuchCard('Нет такой карточки');
+          throw new NoSuchCard('Чужая карточка');
           // return res
           //   .status(ERROR_CODE_NO_CARD)
           //   .send({ message: 'Такой user не существует' });
