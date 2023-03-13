@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jsonwebtoken = require('jsonwebtoken');
 const userSchema = require('../models/user');
+const NotFoundError = require('../constants/not-found-err');
 
 const {
   ERROR_CODE_INCORRECT_REQ, ERROR_CODE_NO_USER, ERROR_CODE_DEFAULT, ERROR_CODE_USER_EXIST,
@@ -40,13 +41,21 @@ module.exports.login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
     const user = await userSchema.findOne({ email }).select('+password');
-    const uncrypt = await bcrypt.compare(password, user.password);
-    if (uncrypt) {
-      const jwt = jsonwebtoken.sign({ _id: user._id }, 'secret_word', { expiresIn: '7d' });
-      return res.send({ jwt });
-    } else {
-      res.status(401).send({ message: 'Пользователь не найден' });
+    if (!user) {
+      throw new NotFoundError('Пользователь не найден');
     }
+    const uncrypt = await bcrypt.compare(password, user.password);
+    if (!uncrypt) {
+      throw new NotFoundError('Пользователь не найден');
+
+    }
+    const jwt = jsonwebtoken.sign({ _id: user._id }, 'secret_word', { expiresIn: '7d' });
+    // return jwt;
+    res.send({ jwt });
+    // else {
+
+      // res.status(401).send({ message: 'Пользователь не найден' });
+    // }
   } catch (err) {
     next(err);
     // if (err.name === 'ValidationError') {

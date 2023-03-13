@@ -1,4 +1,5 @@
 const cardSchema = require('../models/card');
+const NotFoundError = require('../constants/not-found-err');
 const { ERROR_CODE_INCORRECT_REQ, ERROR_CODE_NO_CARD, ERROR_CODE_DEFAULT } = require('../constants/errors');
 
 module.exports.createCard = (req, res, next) => {
@@ -36,46 +37,49 @@ module.exports.getCards = (req, res, next) => {
 module.exports.removeCard = (req, res, next) => {
   // console.log(req.params.cardId)
   // console.log(req.user)
-  cardSchema.findById(req.params.cardId)
-  .then((card)=>{if (card) {
-          console.log(`card owner - ${card.owner._id}`)
-      console.log(`user id - ${req.user._id}`)
-    if (card.owner === req.user._id) {
-      cardSchema
-    .findByIdAndRemove(req.params.cardId).then((card)=>{
-      res.send(card);})
-    }
-    else {
-      res
-        .status(ERROR_CODE_NO_CARD)
-        .send({ message: 'Такой user не существует' });
-    }
-  } else {
-    res
-      .status(ERROR_CODE_NO_CARD)
-      .send({ message: 'Такой карточки не существует' });
-  }
-})
-  // cardSchema
-  //   .findByIdAndRemove(req.params.cardId)
-  //   .then((card) => {
-  //     // console.log(`card owner - ${card.owner._id}`)
-  //     // console.log(`user id - ${req.user._id}`)
-  //     if (card) {
-  //       if (card.owner === req.user._id) {
-  //         res.send(card);
-  //       }
-  //       else {
-  //         res
-  //           .status(ERROR_CODE_NO_CARD)
-  //           .send({ message: 'Такой user не существует' });
-  //       }
-  //     } else {
-  //       res
-  //         .status(ERROR_CODE_NO_CARD)
-  //         .send({ message: 'Такой карточки не существует' });
-  //     }
-  //   })
+
+//   cardSchema.findById(req.params.cardId)
+//     .then((card) => {
+//       if (card && card.owner._id === req.user._id) {
+//         console.log(card);
+//         console.log(`card ow - ${card.owner._id}`);
+//         console.log(`user id - ${req.user._id}`);
+//         cardSchema
+//     .findByIdAndRemove(req.params.cardId).then((data) => {
+//       console.log(data)
+//       res.send(data); });
+
+//     // else {
+//     //   res
+//     //     .status(403)
+//     //     .send({ message: 'Такой user не существует' });
+//     // }
+//   } else {
+//     res
+//       .status(ERROR_CODE_NO_CARD)
+//       .send({ message: 'Такой карточки не существует' });
+//   }
+// })
+  cardSchema
+    .findByIdAndRemove(req.params.cardId)
+    .then((card) => {
+      console.log(`card ow - ${card.owner._id}`);
+      console.log(`user id - ${req.user._id}`);
+      if (!card && card.owner._id !== req.user._id) {
+        return res.send('success');
+      }
+        // else {
+          throw new NotFoundError('Нет пользователя с таким id');
+          // return res
+          //   .status(ERROR_CODE_NO_CARD)
+          //   .send({ message: 'Такой user не существует' });
+        // }
+      // } else {
+      //   res
+      //     .status(ERROR_CODE_NO_CARD)
+      //     .send({ message: 'Такой карточки не существует' });
+      // }
+    })
     .catch((err) => {
       next(err);
       // if (err.name === 'CastError') {

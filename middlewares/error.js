@@ -4,15 +4,15 @@ const {
 } = require('../constants/errors');
 
 const userErrorsHandler = (err, req, res, next) => {
-  // console.log(err);
+  console.log(err);
 
-  // const statusCode = err.statusCode || 500;
+  const statusCode = err.statusCode || 500;
 
-  // const message = statusCode === 500
-  //   ? `На сервере произошла ошибка: ${err.message}`
-  //   : err.message;
+  const message = statusCode === 500
+    ? `На сервере произошла ошибка: ${err.message}`
+    : err.message;
 
-  // res.status(statusCode).send({ message });
+  res.status(statusCode).send({ message });
 
   if (err.name === 'ValidationError') {
     res.status(ERROR_CODE_INCORRECT_REQ).send({
