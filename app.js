@@ -62,7 +62,6 @@ app.use('/users', celebrate({
   }),
 }), auth, usersRouter);
 app.use('/cards', auth, cardRouter);
-// app.use(errors());
 app.use('*', (req, res) => {
   res.status(404).send({ message: 'Несуществующий адрес' });
 });
