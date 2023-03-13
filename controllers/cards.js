@@ -1,5 +1,6 @@
 const cardSchema = require('../models/card');
 const NotFoundError = require('../constants/not-found-err');
+const NoSuchCard = require('../constants/no-such-card');
 const { ERROR_CODE_INCORRECT_REQ, ERROR_CODE_NO_CARD, ERROR_CODE_DEFAULT } = require('../constants/errors');
 
 module.exports.createCard = (req, res, next) => {
@@ -69,7 +70,7 @@ module.exports.removeCard = (req, res, next) => {
         return res.send('success');
       }
         // else {
-          throw new NotFoundError('Нет пользователя с таким id');
+          throw new NoSuchCard('Нет такой карточки');
           // return res
           //   .status(ERROR_CODE_NO_CARD)
           //   .send({ message: 'Такой user не существует' });
